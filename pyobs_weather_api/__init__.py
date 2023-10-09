@@ -1,0 +1,1 @@
+from pyobs_weather_api.pyobs_weather_api import PyobsWeatherApi
