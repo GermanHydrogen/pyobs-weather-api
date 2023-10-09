@@ -19,7 +19,7 @@ class StationHistory:
             if key.code == code:
                 return item
 
-        raise KeyError()
+        raise KeyError(code)
 
     def get_station_data(self, station: Union[str, Station]) -> History:
         if isinstance(station, str):

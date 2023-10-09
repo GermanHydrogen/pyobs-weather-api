@@ -1,4 +1,6 @@
-from pyobs_weather_api.models import StationHistory, Station, HistoryData
+import pytest
+
+from pyobs_weather_api.models import StationHistory, Station
 from pyobs_weather_api.models.history import History
 
 
@@ -34,3 +36,15 @@ def test_get_station_data_by_code(mock_data):
     )
 
     assert history.get_station_data("observer").data[0] == mock_data
+
+
+def test_get_station_data_by_code_not_found(mock_data):
+    data = [mock_data]
+    history = StationHistory(
+        {
+            Station("Observer", "observer"): History(data)
+        }
+    )
+
+    with pytest.raises(KeyError):
+        history.get_station_data("test")

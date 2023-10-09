@@ -10,7 +10,7 @@ def test_get_data(mock_data):
 def test_get_raw(mock_data):
     history = History([mock_data])
     raw_history = history.get_raw()
-    print(raw_history)
+
     assert raw_history[0]["time"] == mock_data.time
     assert raw_history[0]["value"] == mock_data.value
     assert raw_history[0]["min"] == mock_data.min
@@ -30,4 +30,5 @@ def test_as_pandas(mock_data):
 def test_str(mock_data):
     history = History([mock_data])
 
-    assert str(history) == f"[Time: 31.12.2000 23:30:10\t Value: {mock_data._value}\t Min: {mock_data._min}\t Max: {mock_data._max}]"
+    assert (history.__repr__() ==
+            f"[Time: 31.12.2000 23:30:10\t Value: {mock_data._value}\t Min: {mock_data._min}\t Max: {mock_data._max}]")
