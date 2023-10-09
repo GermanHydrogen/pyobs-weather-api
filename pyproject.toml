@@ -9,6 +9,8 @@ packages = [{include = "pyobs_weather_api"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 requests = "^2.31.0"
+pytest = "^7.4.2"
+pytest-mock = "^3.11.1"
 
 
 [build-system]
