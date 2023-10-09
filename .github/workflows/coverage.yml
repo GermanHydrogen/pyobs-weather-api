@@ -34,7 +34,7 @@ jobs:
         uses: codecov/codecov-action@v2
 
       - name: Generate coverage badge
-        run: coverage-badge -f -o coverage.svg
+        run: poetry run coverage-badge -f -o coverage.svg
 
       - name: Upload badge as workflow artifact
         uses: actions/upload-artifact@v2
