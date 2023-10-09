@@ -1,0 +1,43 @@
+name: Python Test and Coverage
+
+on:
+  push:
+    branches:
+      - main  # Change this to your main branch name
+
+jobs:
+  test-coverage:
+    name: Test and Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version-file: 'pyproject.toml'
+          cache: 'poetry'
+
+      - run: poetry install --all-extras
+
+      - name: Run pytest with coverage
+        run: |
+          coverage run -m pytest
+          coverage report -m
+
+      - name: Upload coverage report to Codecov
+        uses: codecov/codecov-action@v2
+
+      - name: Generate coverage badge
+        run: coverage-badge -f -o coverage.svg
+
+      - name: Upload badge as workflow artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-badge
+          path: coverage.svg
