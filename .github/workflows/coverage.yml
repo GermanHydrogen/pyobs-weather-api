@@ -27,8 +27,8 @@ jobs:
 
       - name: Run pytest with coverage
         run: |
-          coverage run -m pytest
-          coverage report -m
+          poetry run coverage run -m pytest
+          poetry run coverage report -m
 
       - name: Upload coverage report to Codecov
         uses: codecov/codecov-action@v2
