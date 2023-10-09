@@ -1,6 +1,6 @@
 from typing import List
 
-from pyobs_weather_api.models import SensorType
+from pyobs_weather_api.models import SensorType, Station
 from pyobs_weather_api.rest_adapter import RestAdapter
 
 
@@ -14,3 +14,10 @@ class PyobsWeatherApi:
         history_types = [SensorType(name) for name in data]
 
         return history_types
+
+    def get_stations(self) -> List[Station]:
+        data = self._rest_adapter.get("stations")
+
+        stations = [Station(**x) for x in data]
+
+        return stations
