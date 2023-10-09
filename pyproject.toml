@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "pyobs-weather-api"
+version = "0.1.0"
+description = ""
+authors = ["GermanHydrogen <admin@germanhydrogen.org>"]
+readme = "README.md"
+packages = [{include = "pyobs_weather_api"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.31.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
