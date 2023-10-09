@@ -1,4 +1,5 @@
 import datetime
+from typing import Dict, Union
 
 
 class HistoryData:
@@ -23,3 +24,18 @@ class HistoryData:
     @property
     def max(self):
         return self._max
+
+    def to_dict(self) -> Dict[str, Union[datetime.datetime, float]]:
+        return {
+            "time": self._time,
+            "value": self._value,
+            "min": self._min,
+            "max": self._max
+        }
+
+    def __str__(self):
+        time_str = datetime.datetime.strftime(self._time, "%d.%m.%Y %H:%M:%S")
+        return f"Time: {time_str}\t Value: {self._value}\t Min: {self._min}\t Max: {self._max}"
+
+    def __repr__(self):
+        return str(self)

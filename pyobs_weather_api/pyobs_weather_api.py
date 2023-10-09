@@ -2,6 +2,7 @@ import datetime
 from typing import List, Tuple, Union, Dict
 
 from pyobs_weather_api.models import SensorType, Station, HistoryData, StationHistory
+from pyobs_weather_api.models.history import History
 from pyobs_weather_api.rest_adapter import RestAdapter
 
 
@@ -33,23 +34,23 @@ class PyobsWeatherApi:
     def _parse_station_history(self, data: Dict) -> StationHistory:
         history = {
             Station(x["name"], x["code"]):
-                [self._parse_history_data(y) for y in x["data"]]
+                History([self._parse_history_data(y) for y in x["data"]])
             for x in data["stations"]}
 
         return StationHistory(history)
 
-    def get_station_history(self, station: Union[Station, str],
-                            interval: Tuple[datetime.datetime, datetime.datetime] = None):
+    def get_sensor_history(self, sensor: Union[SensorType, str],
+                           interval: Tuple[datetime.datetime, datetime.datetime] = None) -> StationHistory:
         params = None
         if interval is not None:
             params = {
                 "start": datetime.datetime.strftime(interval[0], self.TIME_FORMAT),
                 "end": datetime.datetime.strftime(interval[1], self.TIME_FORMAT)
             }
-        if isinstance(station, Station):
-            station = station.code
+        if isinstance(sensor, SensorType):
+            sensor = sensor.value
 
-        data = self._rest_adapter.get(f"history/{station}/", params)
+        data = self._rest_adapter.get(f"history/{sensor}/", params)
         history = self._parse_station_history(data)
 
         return history
