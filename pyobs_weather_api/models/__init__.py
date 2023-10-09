@@ -1,0 +1,1 @@
+from pyobs_weather_api.models.sensor_type import SensorType
