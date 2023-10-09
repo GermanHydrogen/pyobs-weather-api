@@ -1,6 +1,8 @@
+import datetime
+
 import pytest
 from pyobs_weather_api import PyobsWeatherApi
-from pyobs_weather_api.models import SensorType
+from pyobs_weather_api.models import SensorType, StationHistory, Station
 
 
 @pytest.fixture()
@@ -38,3 +40,27 @@ def test_get_stations(api):
 
     assert stations[1].name == "Average values"
     assert stations[1].code == "iag50cm_avg"
+
+
+@pytest.mark.api_result({"stations": [{"code": "lambrecht", "name": "Lambrecht", "color": "#B90e46", "data": [{"time": "2023-10-08T18:45:00Z", "value": 11.099999999999943, "min": 11.1, "max": 11.1}]}]})
+def test_get_station_history_w_string(api):
+    history: StationHistory = api.get_station_history("lambrecht")
+
+    assert history.get_station_data("lambrecht")[0].value == 11.099999999999943
+    assert history.get_station_data("lambrecht")[0].time == datetime.datetime.strptime("2023-10-08T18:45:00Z", "%Y-%m-%dT%H:%M:%SZ")
+
+
+@pytest.mark.api_result({"stations": [{"code": "lambrecht", "name": "Lambrecht", "color": "#B90e46", "data": [{"time": "2023-10-08T18:45:00Z", "value": 11.099999999999943, "min": 11.1, "max": 11.1}]}]})
+def test_get_station_history_w_intervall(api):
+    history: StationHistory = api.get_station_history("lambrecht",
+                                                      interval=(
+                                                          datetime.datetime.strptime("2022-10-08T18:45:00Z",
+                                                                                     "%Y-%m-%dT%H:%M:%SZ"),
+                                                          datetime.datetime.strptime("2023-10-08T18:45:00Z",
+                                                                                     "%Y-%m-%dT%H:%M:%SZ")
+                                                      ))
+
+    api._rest_adapter.get.assert_called_once_with("history/lambrecht/", {
+        "start": "2022-10-08T18:45:00Z",
+        "end": "2023-10-08T18:45:00Z"
+    })
