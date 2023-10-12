@@ -29,11 +29,7 @@ class PyobsWeatherApi:
 
     def _parse_sensor_data(self, data: Dict):
         name = data["name"]
-        code: SensorType
-        if "code" in data:
-            code = SensorType(data["code"])
-        else:
-            code = SensorType(data["type_code"])
+        code = SensorType(data["code"])
 
         value = data["value"]
         unit = data["unit"]

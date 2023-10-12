@@ -38,10 +38,6 @@ class Sensor:
         return self._unit
 
     @property
-    def time(self):
-        return self._time
-
-    @property
     def time(self) -> Optional[datetime.datetime]:
         return self._time
 

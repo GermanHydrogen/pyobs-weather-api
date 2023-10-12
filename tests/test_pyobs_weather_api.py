@@ -10,8 +10,11 @@ def api(request, mocker):
     url = "weather.iag50srv.astro.physik.uni-goettingen.de"
     api = PyobsWeatherApi(url)
 
-    marker = request.node.get_closest_marker("api_result")
-    mocker.patch.object(api._rest_adapter, "get", return_value=marker.args[0])
+    api_result = None
+    if (marker := request.node.get_closest_marker("api_result")) is not None:
+        api_result = marker.args[0]
+
+    mocker.patch.object(api._rest_adapter, "get", return_value=api_result)
 
     return api
 
@@ -50,10 +53,18 @@ def test_get_sensor(api):
 
     assert sensor.name == "Rel sky temperature"
     assert sensor.type_code == SensorType.SkyTemperature
+    assert sensor.value == -10.3
     assert sensor.unit == "\u00b0C"
     assert sensor.time == datetime.datetime.strptime("2023-10-12T12:01:16Z", "%Y-%m-%dT%H:%M:%SZ")
     assert not sensor.good
     assert sensor.since == datetime.datetime.strptime("2023-09-26T22:31:13.404Z", "%Y-%m-%dT%H:%M:%S.%fZ")
+
+
+@pytest.mark.api_result({"name": "Rel sky temperature", "code": "skytemp", "value": -10.3, "unit": "\u00b0C",
+                         "time": "2023-10-12T12:01:16Z", "good": False, "since": "2023-09-26T22:31:13.404Z"})
+def test_get_sensor_w_obj(api):
+    api.get_sensor(Station("Boltwood III", "boltwood"), SensorType.SkyTemperature)
+    api._rest_adapter.get.assert_called_once_with("stations/boltwood/skytemp")
 
 
 @pytest.mark.api_result({"stations": [{"code": "lambrecht", "name": "Lambrecht", "color": "#B90e46", "data": [
