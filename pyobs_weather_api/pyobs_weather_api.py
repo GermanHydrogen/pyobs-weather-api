@@ -1,8 +1,9 @@
 import datetime
-from typing import List, Tuple, Union, Dict
+from typing import List, Tuple, Union, Dict, Optional
 
 from pyobs_weather_api.models import SensorType, Station, HistoryData, StationHistory
 from pyobs_weather_api.models.history import History
+from pyobs_weather_api.models.sensor import Sensor
 from pyobs_weather_api.rest_adapter import RestAdapter
 
 
@@ -25,6 +26,38 @@ class PyobsWeatherApi:
         stations = [Station(**x) for x in data]
 
         return stations
+
+    def _parse_sensor_data(self, data: Dict):
+        name = data["name"]
+        code: SensorType
+        if "code" in data:
+            code = SensorType(data["code"])
+        else:
+            code = SensorType(data["type_code"])
+
+        value = data["value"]
+        unit = data["unit"]
+
+        time: Optional[datetime.datetime] = None
+        if "time" in data:
+            time = datetime.datetime.strptime(data["time"], self.TIME_FORMAT)
+
+        good: Optional[bool] = data["good"]
+        since: Optional[datetime.datetime] = None
+        if good is not None:
+            since = datetime.datetime.strptime(data["since"], "%Y-%m-%dT%H:%M:%S.%fZ")
+
+        return Sensor(name, code, value, unit, time, good, since)
+
+    def get_sensor(self, station: Union[Station, str], sensor_type: Union[SensorType, str]) -> Sensor:
+        if isinstance(station, Station):
+            station = station.code
+        if isinstance(sensor_type, SensorType):
+            sensor_type = sensor_type.value
+
+        data = self._rest_adapter.get(f"stations/{station}/{sensor_type}")
+
+        return self._parse_sensor_data(data)
 
     def _parse_history_data(self, data: Dict):
         time = datetime.datetime.strptime(data["time"], self.TIME_FORMAT)

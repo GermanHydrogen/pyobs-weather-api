@@ -42,31 +42,50 @@ def test_get_stations(api):
     assert stations[1].code == "iag50cm_avg"
 
 
-@pytest.mark.api_result({"stations": [{"code": "lambrecht", "name": "Lambrecht", "color": "#B90e46", "data": [{"time": "2023-10-08T18:45:00Z", "value": 11.099999999999943, "min": 11.1, "max": 11.1}]}]})
+@pytest.mark.api_result({"name": "Rel sky temperature", "code": "skytemp", "value": -10.3, "unit": "\u00b0C",
+                         "time": "2023-10-12T12:01:16Z", "good": False, "since": "2023-09-26T22:31:13.404Z"})
+def test_get_sensor(api):
+    sensor = api.get_sensor("boltwood", "skytemp")
+    api._rest_adapter.get.assert_called_once_with("stations/boltwood/skytemp")
+
+    assert sensor.name == "Rel sky temperature"
+    assert sensor.type_code == SensorType.SkyTemperature
+    assert sensor.unit == "\u00b0C"
+    assert sensor.time == datetime.datetime.strptime("2023-10-12T12:01:16Z", "%Y-%m-%dT%H:%M:%SZ")
+    assert not sensor.good
+    assert sensor.since == datetime.datetime.strptime("2023-09-26T22:31:13.404Z", "%Y-%m-%dT%H:%M:%S.%fZ")
+
+
+@pytest.mark.api_result({"stations": [{"code": "lambrecht", "name": "Lambrecht", "color": "#B90e46", "data": [
+    {"time": "2023-10-08T18:45:00Z", "value": 11.099999999999943, "min": 11.1, "max": 11.1}]}]})
 def test_get_sensor_history_w_sensor_type(api):
     history: StationHistory = api.get_sensor_history(SensorType.SkyTemperature)
 
     assert history.get_station_data("lambrecht").data[0].value == 11.099999999999943
-    assert history.get_station_data("lambrecht").data[0].time == datetime.datetime.strptime("2023-10-08T18:45:00Z", "%Y-%m-%dT%H:%M:%SZ")
+    assert history.get_station_data("lambrecht").data[0].time == datetime.datetime.strptime("2023-10-08T18:45:00Z",
+                                                                                            "%Y-%m-%dT%H:%M:%SZ")
 
 
-@pytest.mark.api_result({"stations": [{"code": "lambrecht", "name": "Lambrecht", "color": "#B90e46", "data": [{"time": "2023-10-08T18:45:00Z", "value": 11.099999999999943, "min": 11.1, "max": 11.1}]}]})
+@pytest.mark.api_result({"stations": [{"code": "lambrecht", "name": "Lambrecht", "color": "#B90e46", "data": [
+    {"time": "2023-10-08T18:45:00Z", "value": 11.099999999999943, "min": 11.1, "max": 11.1}]}]})
 def test_get_sensor_history_w_string(api):
     history: StationHistory = api.get_sensor_history("lambrecht")
 
     assert history.get_station_data("lambrecht").data[0].value == 11.099999999999943
-    assert history.get_station_data("lambrecht").data[0].time == datetime.datetime.strptime("2023-10-08T18:45:00Z", "%Y-%m-%dT%H:%M:%SZ")
+    assert history.get_station_data("lambrecht").data[0].time == datetime.datetime.strptime("2023-10-08T18:45:00Z",
+                                                                                            "%Y-%m-%dT%H:%M:%SZ")
 
 
-@pytest.mark.api_result({"stations": [{"code": "lambrecht", "name": "Lambrecht", "color": "#B90e46", "data": [{"time": "2023-10-08T18:45:00Z", "value": 11.099999999999943, "min": 11.1, "max": 11.1}]}]})
+@pytest.mark.api_result({"stations": [{"code": "lambrecht", "name": "Lambrecht", "color": "#B90e46", "data": [
+    {"time": "2023-10-08T18:45:00Z", "value": 11.099999999999943, "min": 11.1, "max": 11.1}]}]})
 def test_get_sensor_history_w_intervall(api):
     history: StationHistory = api.get_sensor_history("lambrecht",
                                                      interval=(
-                                                          datetime.datetime.strptime("2022-10-08T18:45:00Z",
-                                                                                     "%Y-%m-%dT%H:%M:%SZ"),
-                                                          datetime.datetime.strptime("2023-10-08T18:45:00Z",
-                                                                                     "%Y-%m-%dT%H:%M:%SZ")
-                                                      ))
+                                                         datetime.datetime.strptime("2022-10-08T18:45:00Z",
+                                                                                    "%Y-%m-%dT%H:%M:%SZ"),
+                                                         datetime.datetime.strptime("2023-10-08T18:45:00Z",
+                                                                                    "%Y-%m-%dT%H:%M:%SZ")
+                                                     ))
 
     api._rest_adapter.get.assert_called_once_with("history/lambrecht/", {
         "start": "2022-10-08T18:45:00Z",
